@@ -652,7 +652,7 @@ CXWindowsSecondaryScreen::mapButton(ButtonID id) const
 	}
 
 	// map button
-	return static_cast<unsigned int>(m_buttons[id - 1]);
+	return static_cast<unsigned int>(id);
 }
 
 CXWindowsSecondaryScreen::ModifierMask
