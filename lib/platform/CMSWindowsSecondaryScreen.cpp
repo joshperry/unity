@@ -1095,11 +1095,16 @@ CMSWindowsSecondaryScreen::mapCharacter(Keystrokes& keys,
 	// win32 does not permit ctrl and alt used together to
 	// modify a character because ctrl and alt together mean
 	// AltGr.  if the desired mask has both ctrl and alt then
-	// strip them both out.
+	// we should strip them both out.  however, user defined
+	// desktop shortcuts always use ctrl+alt.  so we allow
+	// ctrl+alt through as-is, even though that might modify
+	// the character as AltGr rather than as ctrl and alt.
+/*
 	if ((desiredMask & (KeyModifierControl | KeyModifierAlt)) ==
 						(KeyModifierControl | KeyModifierAlt)) {
 		desiredMask &= ~(KeyModifierControl | KeyModifierAlt);
 	}
+*/
 
 	// strip out the desired shift state.  we're forced to use
 	// a particular shift state to generate the desired character
@@ -1126,6 +1131,9 @@ CMSWindowsSecondaryScreen::mapCharacter(Keystrokes& keys,
 	}
 	if ((modifierState & 6) == 6) {
 		outMask |= KeyModifierModeSwitch;
+
+		// do not add Alt to outMask later
+		desiredMask &= ~KeyModifierAlt;
 	}
 	else if ((modifierState & 4) != 0) {
 		outMask |= KeyModifierAlt;
