@@ -1,3 +1,58 @@
+2003/09/28 19:08:39 crs
+lib/platform/CMSWindowsPrimaryScreen.cpp
+lib/platform/CMSWindowsPrimaryScreen.h
+
+Now disabling edge grabs when scroll lock is on and on the primary
+screen (to play better with full screen games).  Also added hack
+to get keys working on 95 family;  previously keyboard events
+weren't received at all unless the user set focus to a window that
+accepts keyboard events.
+
+----------
+2003/09/28 19:01:09 crs
+lib/platform/CMSWindowsSecondaryScreen.cpp
+
+Fixed bug in num-lock, caps-lock, and scroll-lock handling.  Added
+an item to a list and didn't update the code indexing that list.
+
+----------
+2003/09/28 19:00:33 crs
+lib/base/LogOutputters.cpp
+lib/base/LogOutputters.h
+
+Replaced deque with list in log buffer.  Was getting occasional
+crashes with win32 deque.  It seems okay with a list but that
+could be luck.
+
+----------
+2003/09/28 11:51:31 crs
+lib/platform/CMSWindowsPrimaryScreen.cpp
+lib/platform/CMSWindowsSecondaryScreen.cpp
+lib/synergy/KeyTypes.h
+
+Added Japanese keyboard support (thanks to Kazuhide Takahashi).
+
+----------
+2003/09/28 11:38:40 crs
+lib/arch/CArchFileUnix.cpp
+
+Now handling failure of sysconf() when getting _SC_GETPW_R_SIZE_MAX.
+
+----------
+2003/09/08 19:41:07 crs
+lib/platform/CMSWindowsPrimaryScreen.cpp
+lib/platform/CMSWindowsPrimaryScreen.h
+
+Changed server side of win32 to send ctrl+alt+<key> if the key
+doesn't map to anything via AltGr.  This is an improvement over
+the previous code which would simply discard the key but it
+still behaves slightly differently than pressing ctrl+alt+<key>
+on the server:  if that combination is a hotkey on the server
+then the hotkey is performed, even if the combination is also
+a valid AltGr combination;  on the client, we'll get the AltGr
+combination in preference to the hotkey.
+
+----------
 2003/09/07 17:06:57 crs
 lib/platform/CXWindowsSecondaryScreen.cpp
 
