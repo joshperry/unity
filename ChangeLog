@@ -1,3 +1,74 @@
+2003/09/07 17:06:57 crs
+lib/platform/CXWindowsSecondaryScreen.cpp
+
+Fixed problem with solaris build (undefined XK_ symbols).
+
+----------
+2003/09/07 16:37:51 crs
+lib/platform/CMSWindowsSecondaryScreen.cpp
+
+Removed code that prevented ctrl+alt to be used together on win32
+clients.  The idea was that ctrl+alt means AltGr on win32 but that a
+server sending ctrl+alt wanted ctrl+alt not AltGr.  Unfortunately,
+win32 also allows ctrl+alt to modify keys.  In particular, it's used
+for custom desktop shortcuts.  So now we just let ctrl+alt through
+and if it's treated as AltGr then so be it.
+
+----------
+2003/09/07 13:05:19 crs
+lib/platform/CXWindowsSecondaryScreen.cpp
+
+Fixed button mapping.  Was returning the physical button instead of
+the logical button, but XTest wants the logical button.  Apparently,
+the XTest implementation on my mac laptop has it backwards.
+
+----------
+2003/09/06 23:17:36 crs
+lib/platform/CMSWindowsPrimaryScreen.cpp
+lib/platform/CMSWindowsPrimaryScreen.h
+lib/platform/CMSWindowsSecondaryScreen.cpp
+lib/platform/CMSWindowsSecondaryScreen.h
+
+Fixed potential failure to use synergy's keyboard layout when
+using low-level keyboard hooks, fixed handling of the global
+keyboard layout dead key buffer, fixed identification of dead
+keys, fixed synthesis of AltGr (now using right-alt instead
+of left-alt), now using VK_DECIMAL for Separator key, fixed
+bug where an unmappable key was treated as virtual key 0xff,
+and added support for shift-space (shift was being discarded).
+
+----------
+2003/09/02 21:35:52 crs
+lib/mt/CThread.cpp
+
+Now logging an error when a thread (other than the main thread)
+terminates because of an uncaught exception.
+
+----------
+2003/09/02 21:33:46 crs
+lib/server/CServer.cpp
+
+Changed catch blocks to catch XIO instead of XStream.  XStream
+exceptions were not being generated but XIO exceptions were.
+The old code could crash when a client connection died.
+
+----------
+2003/09/02 21:32:30 crs
+lib/arch/CArchMultithreadWindows.cpp
+
+Removed change of priority when creating a new thread on win32.
+Changing the thread priority also means changing a process-wide
+setting.  Changing this process-wide setting when creating a new
+thread interferes with changing it when it's actually important.
+
+----------
+2003/09/02 21:30:47 crs
+configure.in
+lib/common/Version.h
+
+Changed version to 1.0.15.
+
+----------
 2003/08/24 14:52:02 crs
 configure.in
 lib/common/Version.h
