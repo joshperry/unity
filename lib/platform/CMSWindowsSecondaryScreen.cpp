@@ -70,7 +70,9 @@
 // CMSWindowsSecondaryScreen
 //
 
-// a list of modifier key info
+// table of modifier keys.  note that VK_RMENU shows up under the Alt
+// key and ModeSwitch.  when simulating AltGr we need to use the right
+// alt key so we use KeyModifierModeSwitch to get it.
 const CMSWindowsSecondaryScreen::CModifierInfo
 						CMSWindowsSecondaryScreen::s_modifier[] = {
 	{ KeyModifierShift,		VK_LSHIFT,			VK_RSHIFT,			false },
@@ -78,6 +80,7 @@ const CMSWindowsSecondaryScreen::CModifierInfo
 	{ KeyModifierAlt,		VK_LMENU,			VK_RMENU | 0x100,	false },
 	// note -- no keys for KeyModifierMeta
 	{ KeyModifierSuper,		VK_LWIN | 0x100,	VK_RWIN | 0x100,	false },
+	{ KeyModifierModeSwitch,VK_RMENU   | 0x100, 0,                  false },
 	{ KeyModifierCapsLock,	VK_CAPITAL,			0,					true },
 	{ KeyModifierNumLock,	VK_NUMLOCK | 0x100,	0,					true },
 	{ KeyModifierScrollLock,VK_SCROLL,			0,					true }
@@ -722,6 +725,9 @@ static const UINT		g_mapEE00[] =
 	/* 0xf0 */ 0, 0, 0, 0, 0, 0, 0, 0,
 	/* 0xf8 */ 0, 0, 0, 0, 0, 0, 0, 0
 };
+/* in g_mapEF00, 0xac is VK_DECIMAL not VK_SEPARATOR because win32
+ * doesn't seem to use VK_SEPARATOR but instead maps VK_DECIMAL to
+ * the same meaning. */
 static const UINT		g_mapEF00[] =
 {
 	/* 0x00 */ 0, 0, 0, 0, 0, 0, 0, 0,
@@ -749,7 +755,7 @@ static const UINT		g_mapEF00[] =
 	/* 0x9c */ VK_END, 0, VK_INSERT, VK_DELETE,
 	/* 0xa0 */ 0, 0, 0, 0, 0, 0, 0, 0,
 	/* 0xa8 */ 0, 0, VK_MULTIPLY, VK_ADD,
-	/* 0xac */ VK_SEPARATOR, VK_SUBTRACT, VK_DECIMAL, VK_DIVIDE|0x100,
+	/* 0xac */ VK_DECIMAL, VK_SUBTRACT, VK_DECIMAL, VK_DIVIDE|0x100,
 	/* 0xb0 */ VK_NUMPAD0, VK_NUMPAD1, VK_NUMPAD2, VK_NUMPAD3,
 	/* 0xb4 */ VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6, VK_NUMPAD7,
 	/* 0xb8 */ VK_NUMPAD8, VK_NUMPAD9, 0, 0, 0, 0, VK_F1, VK_F2,
@@ -954,34 +960,21 @@ CMSWindowsSecondaryScreen::mapKey(Keystrokes& keys, UINT& virtualKey,
 		return m_mask;
 	}
 	virtualKey = mapCharacter(keys, multiByte[0], hkl, m_mask, mask, action);
-	if (virtualKey != static_cast<UINT>(-1)) {
+	if (virtualKey != 0) {
 		LOG((CLOG_DEBUG2 "KeyID 0x%08x maps to character %u", id, (unsigned char)multiByte[0]));
-		if ((MapVirtualKey(virtualKey, 2) & 0x80000000u) != 0) {
-			// it looks like this character is a dead key but
-			// MapVirtualKey() will claim it's a dead key even if it's
-			// not (though i don't think it ever claims it's not when
-			// it is).  we need a backup test to ensure that this is
-			// really a dead key.  we could use ToAscii() for this but
-			// that keeps state and it's a hassle to restore that state.
-			// OemKeyScan() appears to do the trick.  if the character
-			// cannot be generated with a single keystroke then it
-			// returns 0xffffffff.
-			if (OemKeyScan(multiByte[0]) != 0xffffffffu) {
-				// character mapped to a dead key but we want the
-				// character for real so send a space key afterwards.
-				LOG((CLOG_DEBUG2 "character mapped to dead key"));
-				Keystroke keystroke;
-				keystroke.m_virtualKey = VK_SPACE;
-				keystroke.m_press      = true;
-				keystroke.m_repeat     = false;
-				keys.push_back(keystroke);
-				keystroke.m_press      = false;
-				keys.push_back(keystroke);
+		if (isDeadChar(multiByte[0], hkl, false)) {
+			LOG((CLOG_DEBUG2 "character mapped to dead key"));
+			Keystroke keystroke;
+			keystroke.m_virtualKey = VK_SPACE;
+			keystroke.m_press      = true;
+			keystroke.m_repeat     = false;
+			keys.push_back(keystroke);
+			keystroke.m_press      = false;
+			keys.push_back(keystroke);
 
-				// ignore the release of this key since we already
-				// handled it in mapCharacter().
-				virtualKey = 0;
-			}
+			// ignore the release of this key since we already
+			// handled it in mapCharacter().
+			virtualKey = 0;
 		}
 		return m_mask;
 	}
@@ -1078,7 +1071,7 @@ CMSWindowsSecondaryScreen::mapCharacter(Keystrokes& keys,
 	UINT virtualKey    = LOBYTE(virtualKeyAndModifierState);
 	if (LOBYTE(virtualKeyAndModifierState) == 0xff) {
 		LOG((CLOG_DEBUG2 "cannot map character %d", static_cast<unsigned char>(c)));
-		return static_cast<UINT>(-1);
+		return 0;
 	}
 
 	// get the required modifier state
@@ -1109,18 +1102,32 @@ CMSWindowsSecondaryScreen::mapCharacter(Keystrokes& keys,
 	}
 
 	// strip out the desired shift state.  we're forced to use
-	// a particular shift state to generate the desired character.
-	outMask &= ~KeyModifierShift;
+	// a particular shift state to generate the desired character
+	// except for space (ascii 32), which should use the requested
+	// shift state.
+	if (c != 32) {
+		outMask &= ~KeyModifierShift;
+	}
+	else {
+		outMask |= (desiredMask & KeyModifierShift);
+	}
 
 	// use the required modifiers.  if AltGr is required then
-	// modifierState will indicate control and alt.
+	// modifierState will indicate control and mode switch.  mode
+	// switch indicates the right alt key, while alt indicates
+	// the left alt key.  windows doesn't care which alt key so
+	// long as ctrl is also down but some apps do their own
+	// mapping and they do care.  Emacs and PuTTY, for example.
 	if ((modifierState & 1) != 0) {
 		outMask |= KeyModifierShift;
 	}
 	if ((modifierState & 2) != 0) {
 		outMask |= KeyModifierControl;
 	}
-	if ((modifierState & 4) != 0) {
+	if ((modifierState & 6) == 6) {
+		outMask |= KeyModifierModeSwitch;
+	}
+	else if ((modifierState & 4) != 0) {
 		outMask |= KeyModifierAlt;
 	}
 
@@ -1146,7 +1153,7 @@ CMSWindowsSecondaryScreen::mapCharacter(Keystrokes& keys,
 		// then see if it's a dead key.
 		unsigned char uc = static_cast<unsigned char>(c);
 		if (CharLower((LPTSTR)uc) != CharUpper((LPTSTR)uc) ||
-			(MapVirtualKey(virtualKey, 2) & 0x80000000lu) != 0) {
+			(MapVirtualKeyEx(virtualKey, 2, hkl) & 0x80000000lu) != 0) {
 			LOG((CLOG_DEBUG2 "flip shift"));
 			outMask ^= KeyModifierShift;
 		}
@@ -1442,7 +1449,8 @@ UINT
 CMSWindowsSecondaryScreen::virtualKeyToScanCode(UINT& virtualKey) const
 {
 	// try mapping given virtual key
-	UINT code = MapVirtualKey(virtualKey & 0xff, 0);
+	HKL hkl   = GetKeyboardLayout(0);
+	UINT code = MapVirtualKeyEx(virtualKey & 0xff, 0, hkl);
 	if (code != 0) {
 		return code;
 	}
@@ -1473,17 +1481,17 @@ CMSWindowsSecondaryScreen::virtualKeyToScanCode(UINT& virtualKey) const
 	case VK_LSHIFT:
 	case VK_RSHIFT:
 		virtualKey = VK_SHIFT;
-		return MapVirtualKey(VK_SHIFT, 0);
+		return MapVirtualKeyEx(VK_SHIFT, 0, hkl);
 
 	case VK_LCONTROL:
 	case VK_RCONTROL:
 		virtualKey = VK_CONTROL;
-		return MapVirtualKey(VK_CONTROL, 0);
+		return MapVirtualKeyEx(VK_CONTROL, 0, hkl);
 
 	case VK_LMENU:
 	case VK_RMENU:
 		virtualKey = VK_MENU;
-		return MapVirtualKey(VK_MENU, 0);
+		return MapVirtualKeyEx(VK_MENU, 0, hkl);
 
 	default:
 		return 0;
@@ -1552,6 +1560,77 @@ CMSWindowsSecondaryScreen::getCodePageFromLangID(LANGID langid) const
 	}
 
 	return codePage;
+}
+
+int
+CMSWindowsSecondaryScreen::toAscii(TCHAR c,
+				HKL hkl, bool menu, WORD* chars) const
+{
+	// ignore bogus character
+	if (c == 0) {
+		return 0;
+	}
+
+	// translate the character into its virtual key and its required
+	// modifier state.
+	SHORT virtualKeyAndModifierState = VkKeyScanEx(c, hkl);
+
+	// get virtual key
+	BYTE virtualKey = LOBYTE(virtualKeyAndModifierState);
+	if (virtualKey == 0xffu) {
+		return 0;
+	}
+
+	// get the required modifier state
+	BYTE modifierState = HIBYTE(virtualKeyAndModifierState);
+
+	// set shift state required to generate key
+	BYTE keys[256];
+	memset(keys, 0, sizeof(keys));
+	if (modifierState & 0x01u) {
+		keys[VK_SHIFT]   = 0x80u;
+	}
+	if (modifierState & 0x02u) {
+		keys[VK_CONTROL] = 0x80u;
+	}
+	if (modifierState & 0x04u) {
+		keys[VK_MENU]    = 0x80u;
+	}
+
+	// get the scan code for the key
+	UINT scanCode = MapVirtualKeyEx(virtualKey, 0, hkl);
+
+	// discard characters if chars is NULL
+	WORD dummy;
+	if (chars == NULL) {
+		chars = &dummy;
+	}
+
+	// put it back
+	return ToAsciiEx(virtualKey, scanCode, keys, chars, menu ? 1 : 0, hkl);
+}
+
+bool
+CMSWindowsSecondaryScreen::isDeadChar(TCHAR c, HKL hkl, bool menu) const
+{
+	// first clear out ToAsciiEx()'s internal buffer by sending it
+	// a space.
+	WORD ascii;
+	int old = toAscii(' ', hkl, 0, &ascii);
+
+	// now pass the character of interest
+	WORD dummy;
+	bool isDead = (toAscii(c, hkl, menu, &dummy) < 0);
+
+	// clear out internal buffer again
+	toAscii(' ', hkl, 0, &dummy);
+
+	// put old dead key back if there was one
+	if (old == 2) {
+		toAscii(static_cast<TCHAR>(ascii & 0xffu), hkl, menu, &dummy);
+	}
+
+	return isDead;
 }
 
 void

@@ -319,6 +319,7 @@ CMSWindowsPrimaryScreen::CMSWindowsPrimaryScreen(
 	m_threadID(0),
 	m_mark(0),
 	m_markReceived(0),
+	m_deadKey(0),
 	m_lowLevel(false),
 	m_cursorThread(0)
 {
@@ -1034,13 +1035,13 @@ bool
 CMSWindowsPrimaryScreen::showWindow()
 {
 	// we don't need a window to capture input but we need a window
-	// to hide the cursor when using low-level hooks.  do not try to
-	// take the activation;  we want the currently active window to
-	// stay active.
+	// to hide the cursor when using low-level hooks.  also take the
+	// activation so we use our keyboard layout, not the layout of
+	// whatever window was active.
 	if (m_lowLevel) {
 		SetWindowPos(m_window, HWND_TOPMOST, m_xCenter, m_yCenter, 1, 1,
 							SWP_NOACTIVATE);
-		ShowWindow(m_window, SW_SHOWNA);
+		ShowWindow(m_window, SW_SHOW);
 	}
 	return true;
 }
@@ -1386,9 +1387,12 @@ CMSWindowsPrimaryScreen::mapKey(
 	assert(maskOut != NULL);
 	assert(altgr   != NULL);
 
+	HKL hkl = GetKeyboardLayout(0);
+
 	// get the scan code and the extended keyboard flag
 	UINT scanCode = static_cast<UINT>((info & 0x00ff0000u) >> 16);
 	int extended  = ((info & 0x01000000) == 0) ? 0 : 1;
+	bool press    = ((info & 0x80000000) == 0);
 	LOG((CLOG_DEBUG1 "key vk=%d info=0x%08x ext=%d scan=%d", vkCode, info, extended, scanCode));
 
 	// handle some keys via table lookup
@@ -1419,28 +1423,57 @@ CMSWindowsPrimaryScreen::mapKey(
 			m_keys[VK_MENU]     = 0x80;
 		}
 
-		// convert to ascii
+		// get contents of keyboard layout buffer and clear out that
+		// buffer.  we don't want anything placed there by some other
+		// app interfering and we need to put anything there back in
+		// place when we're done.
+		TCHAR oldDeadKey = getSavedDeadChar(hkl);
+
+		// put our previous dead key, if any, in the layout buffer
+		putBackDeadChar(m_deadKey, hkl, false);
+		m_deadKey = 0;
+
+		// process key
 		WORD ascii;
-		int result = ToAscii(vkCode, scanCode, m_keys, &ascii,
-								((menu & 0x80) == 0) ? 0 : 1);
+		bool isMenu = ((menu & 0x80u) != 0);
+		int result  = ToAsciiEx(vkCode, scanCode, m_keys, &ascii,
+								isMenu ? 1 : 0, hkl);
 
-		// restore control state
-		m_keys[VK_LCONTROL] = lControl;
-		m_keys[VK_RCONTROL] = rControl;
-		m_keys[VK_CONTROL]  = control;
-		m_keys[VK_LMENU]    = lMenu;
-		m_keys[VK_MENU]     = menu;
-
-		// if result is less than zero then it was a dead key.  leave it
-		// there.
+		// if result is less than zero then it was a dead key
 		if (result < 0) {
-			id = kKeyMultiKey;
+			// save dead key if a key press.  we catch the dead key
+			// release in the result == 2 case below.
+			if (press) {
+				m_deadKey = static_cast<TCHAR>(ascii & 0xffu);
+			}
 		}
 
 		// if result is 1 then the key was succesfully converted
 		else if (result == 1) {
 			c = static_cast<char>(ascii & 0xff);
-			if (ascii >= 0x80) {
+		}
+
+		// if result is 2 and the two characters are the same and this
+		// is a key release then a dead key was released.  save the
+		// dead key.  if the two characters are the same and this is
+		// not a release then a dead key was pressed twice.  send the
+		// dead key.
+		else if (result == 2) {
+			if (((ascii & 0xff00u) >> 8) == (ascii & 0x00ffu)) {
+				if (!press) {
+					m_deadKey = static_cast<TCHAR>(ascii & 0xffu);
+				}
+				else {
+					putBackDeadChar(oldDeadKey, hkl, false);
+					result = toAscii(' ', hkl, false, &ascii);
+					c = static_cast<char>((ascii >> 8) & 0xffu);
+				}
+			}
+		}
+
+		// map character to key id
+		if (c != 0) {
+			if ((c & 0x80u) != 0) {
 				// character is not really ASCII.  instead it's some
 				// character in the current ANSI code page.  try to
 				// convert that to a Unicode character.  if we fail
@@ -1452,54 +1485,29 @@ CMSWindowsPrimaryScreen::mapKey(
 					id = static_cast<KeyID>(unicode);
 				}
 				else {
-					id = static_cast<KeyID>(ascii & 0x00ff);
+					id = static_cast<KeyID>(c) & 0xffu;
 				}
 			}
 			else {
-				id = static_cast<KeyID>(ascii & 0x00ff);
+				id = static_cast<KeyID>(c) & 0xffu;
 			}
 		}
 
-		// if result is 2 then a previous dead key could not be composed.
-		else if (result == 2) {
-			// if the two characters are the same and this is a key release
-			// then this event is the dead key being released.  we put the
-			// dead key back in that case, otherwise we discard both key
-			// events because we can't compose the character.  alternatively
-			// we could generate key events for both keys.
-			if (((ascii & 0xff00) >> 8) != (ascii & 0x00ff) ||
-				(info & 0x80000000) == 0) {
-				// cannot compose key
-				return kKeyNone;
-			}
+		// clear keyboard layout buffer.  this removes any dead key we
+		// may have just put there.
+		toAscii(' ', hkl, false, NULL);
 
-			// get the scan code of the dead key and the shift state
-			// required to generate it.
-			vkCode = VkKeyScan(static_cast<TCHAR>(ascii & 0x00ff));
+		// restore keyboard layout buffer so a dead key inserted by
+		// another app doesn't disappear mysteriously (from its point
+		// of view).
+		putBackDeadChar(oldDeadKey, hkl, false);
 
-			// set shift state required to generate key
-			BYTE keys[256];
-			memset(keys, 0, sizeof(keys));
-			if (vkCode & 0x0100) {
-				keys[VK_SHIFT]   = 0x80;
-			}
-			if (vkCode & 0x0200) {
-				keys[VK_CONTROL] = 0x80;
-			}
-			if (vkCode & 0x0400) {
-				keys[VK_MENU]    = 0x80;
-			}
-
-			// strip shift state off of virtual key code
-			vkCode &= 0x00ff;
-
-			// get the scan code for the key
-			scanCode = MapVirtualKey(vkCode, 0);
-
-			// put it back
-			ToAscii(vkCode, scanCode, keys, &ascii, 0);
-			id = kKeyMultiKey;
-		}
+		// restore control state
+		m_keys[VK_LCONTROL] = lControl;
+		m_keys[VK_RCONTROL] = rControl;
+		m_keys[VK_CONTROL]  = control;
+		m_keys[VK_LMENU]    = lMenu;
+		m_keys[VK_MENU]     = menu;
 	}
 
 	// set mask
@@ -1516,7 +1524,7 @@ CMSWindowsPrimaryScreen::mapKey(
 		// required (only because it solves the problems we've seen
 		// so far).  in the second, we'll use whatever the keyboard
 		// state says.
-		WORD virtualKeyAndModifierState = VkKeyScan(c);
+		WORD virtualKeyAndModifierState = VkKeyScanEx(c, hkl);
 		if (virtualKeyAndModifierState == 0xffff) {
 			// there is no mapping.  assume AltGr.
 			LOG((CLOG_DEBUG1 "no VkKeyScan() mapping"));
@@ -1808,9 +1816,101 @@ CMSWindowsPrimaryScreen::isModifier(UINT vkCode) const
 KeyButton
 CMSWindowsPrimaryScreen::mapKeyToScanCode(UINT vk1, UINT vk2) const
 {
-	KeyButton button = static_cast<KeyButton>(MapVirtualKey(vk1, 0));
+	HKL hkl          = GetKeyboardLayout(0);
+	KeyButton button = static_cast<KeyButton>(MapVirtualKeyEx(vk1, 0, hkl));
 	if (button == 0) {
-		button = static_cast<KeyButton>(MapVirtualKey(vk2, 0));
+		button = static_cast<KeyButton>(MapVirtualKeyEx(vk2, 0, hkl));
 	}
 	return button;
+}
+
+int
+CMSWindowsPrimaryScreen::toAscii(TCHAR c, HKL hkl, bool menu, WORD* chars) const
+{
+	// ignore bogus character
+	if (c == 0) {
+		return 0;
+	}
+
+	// translate the character into its virtual key and its required
+	// modifier state.
+	SHORT virtualKeyAndModifierState = VkKeyScanEx(c, hkl);
+
+	// get virtual key
+	BYTE virtualKey = LOBYTE(virtualKeyAndModifierState);
+	if (virtualKey == 0xffu) {
+		return 0;
+	}
+
+	// get the required modifier state
+	BYTE modifierState = HIBYTE(virtualKeyAndModifierState);
+
+	// set shift state required to generate key
+	BYTE keys[256];
+	memset(keys, 0, sizeof(keys));
+	if (modifierState & 0x01u) {
+		keys[VK_SHIFT]   = 0x80u;
+	}
+	if (modifierState & 0x02u) {
+		keys[VK_CONTROL] = 0x80u;
+	}
+	if (modifierState & 0x04u) {
+		keys[VK_MENU]    = 0x80u;
+	}
+
+	// get the scan code for the key
+	UINT scanCode = MapVirtualKeyEx(virtualKey, 0, hkl);
+
+	// discard characters if chars is NULL
+	WORD dummy;
+	if (chars == NULL) {
+		chars = &dummy;
+	}
+
+	// put it back
+	return ToAsciiEx(virtualKey, scanCode, keys, chars, menu ? 1 : 0, hkl);
+}
+
+bool
+CMSWindowsPrimaryScreen::isDeadChar(TCHAR c, HKL hkl, bool menu) const
+{
+	// first clear out ToAsciiEx()'s internal buffer by sending it
+	// a space.
+	WORD ascii;
+	int old = toAscii(' ', hkl, 0, &ascii);
+
+	// now pass the character of interest
+	WORD dummy;
+	bool isDead = (toAscii(c, hkl, menu, &dummy) < 0);
+
+	// clear out internal buffer again
+	toAscii(' ', hkl, 0, &dummy);
+
+	// put old dead key back if there was one
+	if (old == 2) {
+		toAscii(static_cast<TCHAR>(ascii & 0xffu), hkl, menu, &dummy);
+	}
+
+	return isDead;
+}
+
+bool
+CMSWindowsPrimaryScreen::putBackDeadChar(TCHAR c, HKL hkl, bool menu) const
+{
+	WORD dummy;
+	return (toAscii(c, hkl, menu, &dummy) < 0);
+}
+
+TCHAR
+CMSWindowsPrimaryScreen::getSavedDeadChar(HKL hkl) const
+{
+	WORD old;
+	int nOld = toAscii(' ', hkl, false, &old);
+	if (nOld == 1 || nOld == 2) {
+		TCHAR c = static_cast<TCHAR>(old & 0xffu);
+		if (nOld == 2 || isDeadChar(c, hkl, false)) {
+			return c;
+		}
+	}
+	return 0;
 }

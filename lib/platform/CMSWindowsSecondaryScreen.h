@@ -131,6 +131,9 @@ private:
 
 	UINT				getCodePageFromLangID(LANGID) const;
 
+	int					toAscii(TCHAR c, HKL hkl, bool menu, WORD* chars) const;
+	bool				isDeadChar(TCHAR c, HKL hkl, bool menu) const;
+
 	// generate a fake ctrl+alt+del
 	void				synthesizeCtrlAltDel();
 

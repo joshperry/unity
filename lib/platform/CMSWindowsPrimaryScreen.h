@@ -93,6 +93,11 @@ private:
 	bool				isModifier(UINT vkCode) const;
 	KeyButton			mapKeyToScanCode(UINT vk1, UINT vk2) const;
 
+	int					toAscii(TCHAR c, HKL hkl, bool menu, WORD* chars) const;
+	bool				isDeadChar(TCHAR c, HKL hkl, bool menu) const;
+	bool				putBackDeadChar(TCHAR c, HKL hkl, bool menu) const;
+	TCHAR				getSavedDeadChar(HKL hkl) const;
+
 private:
 	IPrimaryScreenReceiver*	m_receiver;
 	CMSWindowsScreen*	m_screen;
@@ -112,6 +117,7 @@ private:
 
 	// map of key state
 	BYTE				m_keys[256];
+	TCHAR				m_deadKey;
 
 	// map of button state
 	BYTE				m_buttons[1 + kButtonExtra0 + 1];
