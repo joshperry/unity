@@ -97,6 +97,8 @@ private:
 	bool				isDeadChar(TCHAR c, HKL hkl, bool menu) const;
 	bool				putBackDeadChar(TCHAR c, HKL hkl, bool menu) const;
 	TCHAR				getSavedDeadChar(HKL hkl) const;
+	char				mapToCharacter(UINT vkCode, UINT scanCode,
+							BYTE* keys, bool press, bool isMenu, HKL hkl) const;
 
 private:
 	IPrimaryScreenReceiver*	m_receiver;
@@ -117,7 +119,7 @@ private:
 
 	// map of key state
 	BYTE				m_keys[256];
-	TCHAR				m_deadKey;
+	mutable TCHAR		m_deadKey;
 
 	// map of button state
 	BYTE				m_buttons[1 + kButtonExtra0 + 1];
