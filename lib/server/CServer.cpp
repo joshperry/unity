@@ -1601,7 +1601,7 @@ CServer::runClient(void* vsocket)
 		try {
 			CProtocolUtil::writef(proxy->getOutputStream(), kMsgEBusy);
 		}
-		catch (XSocket&) {
+		catch (XIO&) {
 			// ignore
 		}
 		delete proxy;
@@ -1614,7 +1614,7 @@ CServer::runClient(void* vsocket)
 		try {
 			CProtocolUtil::writef(proxy->getOutputStream(), kMsgEUnknown);
 		}
-		catch (XSocket&) {
+		catch (XIO&) {
 			// ignore
 		}
 		delete proxy;
@@ -1646,7 +1646,7 @@ CServer::runClient(void* vsocket)
 		try {
 			CProtocolUtil::writef(proxy->getOutputStream(), kMsgEBad);
 		}
-		catch (XSocket&) {
+		catch (XIO&) {
 			// ignore.  client probably aborted the connection.
 		}
 	}
@@ -1766,7 +1766,7 @@ CServer::handshakeClient(IDataSocket* socket)
 			CProtocolUtil::writef(output, kMsgEIncompatible,
 							kProtocolMajorVersion, kProtocolMinorVersion);
 		}
-		catch (XSocket&) {
+		catch (XIO&) {
 			// ignore
 		}
 	}
@@ -1776,7 +1776,7 @@ CServer::handshakeClient(IDataSocket* socket)
 		try {
 			CProtocolUtil::writef(output, kMsgEBad);
 		}
-		catch (XSocket&) {
+		catch (XIO&) {
 			// ignore.  client probably aborted the connection.
 		}
 	}
