@@ -645,22 +645,6 @@ CXWindowsSecondaryScreen::mapButton(ButtonID id) const
 		id += 2;
 	}
 
-	// the system will swap the meaning of left/right for us if
-	// the user has configured a left-handed mouse but we don't
-	// want it to swap since we want the handedness of the
-	// server's mouse.  so pre-swap for a left-handed mouse.
-	else if (m_buttons.size() >= 3 && m_buttons[0] == 3 && m_buttons[2] == 1) {
-		switch (id) {
-		case kButtonLeft:
-			id = kButtonRight;
-			break;
-
-		case kButtonRight:
-			id = kButtonLeft;
-			break;
-		}
-	}
-
 	// check button is in legal range
 	if (id < 1 || id > m_buttons.size()) {
 		// out of range
