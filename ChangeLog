@@ -1,3 +1,22 @@
+2005/01/04 19:29:58 crs
+lib/platform/COSXKeyState.cpp
+
+Fixed bug in OS X server key translation which pretty much broke any
+keystroke with a modifier key.
+
+----------
+2005/01/01 20:52:43 crs
+doc/compiling.html
+
+Merged documentation fixes.
+
+----------
+2005/01/01 20:19:42 crs
+doc/running.html
+
+Merged documentation fix from mainline.
+
+----------
 2004/12/30 13:28:51 crs
 cmd/synergyc/synergyc.cpp
 cmd/synergys/synergys.cpp
