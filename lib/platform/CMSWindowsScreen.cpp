@@ -321,6 +321,7 @@ CMSWindowsScreen::checkClipboards()
 	// won't be reflected on other screens until we leave but at
 	// least the clipboard itself will work.
 	if (m_ownClipboard && !CMSWindowsClipboard::isOwnedBySynergy()) {
+		LOG((CLOG_DEBUG "clipboard changed: lost ownership and no notification received"));
 		m_ownClipboard = false;
 		m_receiver->onGrabClipboard(kClipboardClipboard);
 		m_receiver->onGrabClipboard(kClipboardSelection);
@@ -577,13 +578,16 @@ CMSWindowsScreen::onEvent(CEvent* event)
 		// now notify client that somebody changed the clipboard (unless
 		// we're the owner).
 		if (!CMSWindowsClipboard::isOwnedBySynergy()) {
+			LOG((CLOG_DEBUG "clipboard changed: foreign owned"));
 			if (m_ownClipboard) {
+				LOG((CLOG_DEBUG "clipboard changed: lost ownership"));
 				m_ownClipboard = false;
 				m_receiver->onGrabClipboard(kClipboardClipboard);
 				m_receiver->onGrabClipboard(kClipboardSelection);
 			}
 		}
 		else {
+			LOG((CLOG_DEBUG "clipboard changed: synergy owned"));
 			m_ownClipboard = true;
 		}
 		return true;
@@ -591,8 +595,10 @@ CMSWindowsScreen::onEvent(CEvent* event)
 	case WM_CHANGECBCHAIN:
 		if (m_nextClipboardWindow == (HWND)msg.wParam) {
 			m_nextClipboardWindow = (HWND)msg.lParam;
+			LOG((CLOG_DEBUG "clipboard chain: new next: 0x%08x", m_nextClipboardWindow));
 		}
 		else if (m_nextClipboardWindow != NULL) {
+			LOG((CLOG_DEBUG "clipboard chain: forward: %d 0x%08x 0x%08x", msg.message, msg.wParam, msg.lParam));
 			SendMessage(m_nextClipboardWindow,
 								msg.message, msg.wParam, msg.lParam);
 		}
