@@ -186,6 +186,7 @@ CSystemLogger::~CSystemLogger()
 //
 
 CBufferedLogOutputter::CBufferedLogOutputter(UInt32 maxBufferSize) :
+	m_bufferSize(0),
 	m_maxBufferSize(maxBufferSize)
 {
 	// do nothing
@@ -219,15 +220,19 @@ CBufferedLogOutputter::close()
 {
 	// remove all elements from the buffer
 	m_buffer.clear();
+	m_bufferSize = 0;
 }
 
 bool
 CBufferedLogOutputter::write(ELevel, const char* message)
 {
-	while (m_buffer.size() >= m_maxBufferSize) {
-		m_buffer.pop_front();
+	if (m_bufferSize >= m_maxBufferSize) {
+		m_buffer.splice(m_buffer.end(), m_buffer, m_buffer.begin());
 	}
-	m_buffer.push_back(CString(message));
+	else {
+		m_buffer.push_back(CString(message));
+		++m_bufferSize;
+	}
 	return true;
 }
 

@@ -18,7 +18,7 @@
 #include "BasicTypes.h"
 #include "ILogOutputter.h"
 #include "CString.h"
-#include "stddeque.h"
+#include "stdlist.h"
 
 //! Stop traversing log chain outputter
 /*!
@@ -95,7 +95,7 @@ This outputter records the last N log messages.
 */
 class CBufferedLogOutputter : public ILogOutputter {
 private:
-	typedef std::deque<CString> CBuffer;
+	typedef std::list<CString> CBuffer;
 
 public:
 	typedef CBuffer::const_iterator const_iterator;
@@ -121,6 +121,7 @@ public:
 	virtual const char*	getNewline() const;
 
 private:
+	UInt32				m_bufferSize;
 	UInt32				m_maxBufferSize;
 	CBuffer				m_buffer;
 };
