@@ -321,7 +321,9 @@ CMSWindowsPrimaryScreen::CMSWindowsPrimaryScreen(
 	m_markReceived(0),
 	m_deadKey(0),
 	m_lowLevel(false),
-	m_cursorThread(0)
+	m_cursorThread(0),
+	m_onScreen(false),
+	m_sides(0)
 {
 	assert(m_receiver != NULL);
 
@@ -365,6 +367,7 @@ CMSWindowsPrimaryScreen::~CMSWindowsPrimaryScreen()
 void
 CMSWindowsPrimaryScreen::reconfigure(UInt32 activeSides)
 {
+	m_sides = activeSides;
 	m_setSides(activeSides);
 }
 
@@ -593,7 +596,8 @@ CMSWindowsPrimaryScreen::onPreDispatch(const CEvent* event)
 					}
 
 					// send key
-					const bool wasDown = ((lParam & 0x40000000) != 0);
+					//const bool wasDown = ((lParam & 0x40000000) != 0);
+					const bool wasDown = ((m_keys[msg->wParam] & 0x80) != 0);
 					SInt32 repeat      = (SInt32)(lParam & 0xffff);
 					if (!wasDown) {
 						LOG((CLOG_DEBUG1 "event: key press key=%d mask=0x%04x button=0x%04x", key, mask, button));
@@ -965,6 +969,10 @@ CMSWindowsPrimaryScreen::onPreEnter()
 		SystemParametersInfo(SPI_SETSCREENSAVERRUNNING, FALSE, &dummy, 0);
 	}
 
+	// handle scroll lock
+	m_onScreen = true;
+	onScrollLock();
+
 	// watch jump zones
 	m_setRelay(false);
 }
@@ -989,6 +997,10 @@ CMSWindowsPrimaryScreen::onPostLeave(bool success)
 	if (success) {
 		// relay all mouse and keyboard events
 		m_setRelay(true);
+
+		// handle scroll lock
+		m_onScreen = false;
+		onScrollLock();
 
 		// disable ctrl+alt+del, alt+tab, etc
 		if (m_is95Family) {
@@ -1043,6 +1055,13 @@ CMSWindowsPrimaryScreen::showWindow()
 							SWP_NOACTIVATE);
 		ShowWindow(m_window, SW_SHOW);
 	}
+
+	// we have to show the window on 95 to capture input because the
+	// active window may not receive input.
+	else if (m_is95Family) {
+		ShowWindow(m_window, SW_SHOW);
+	}
+
 	return true;
 }
 
@@ -1051,6 +1070,9 @@ CMSWindowsPrimaryScreen::hideWindow()
 {
 	// hide our window
 	if (m_lowLevel) {
+		ShowWindow(m_window, SW_HIDE);
+	}
+	else if (m_is95Family) {
 		ShowWindow(m_window, SW_HIDE);
 	}
 }
@@ -1630,6 +1652,7 @@ CMSWindowsPrimaryScreen::updateKeys()
 	m_keys[VK_CAPITAL]  = static_cast<BYTE>(GetKeyState(VK_CAPITAL));
 	m_keys[VK_NUMLOCK]  = static_cast<BYTE>(GetKeyState(VK_NUMLOCK));
 	m_keys[VK_SCROLL]   = static_cast<BYTE>(GetKeyState(VK_SCROLL));
+	onScrollLock();
 }
 
 void
@@ -1737,6 +1760,9 @@ CMSWindowsPrimaryScreen::updateKey(UINT vkCode, bool press)
 			// toggle keys
 			m_keys[vkCode]     &= ~0x80;
 			m_keys[vkCode]     ^=  0x01;
+			if (vkCode == VK_SCROLL) {
+				onScrollLock();
+			}
 			break;
 
 		default:
@@ -1939,4 +1965,18 @@ CMSWindowsPrimaryScreen::mapToCharacter(UINT vkCode, UINT scanCode,
 	putBackDeadChar(oldDeadKey, hkl, false);
 
 	return c;
+}
+
+void
+CMSWindowsPrimaryScreen::onScrollLock()
+{
+	bool active = ((m_keys[VK_SCROLL] & 1) != 0);
+	if (active && m_onScreen) {
+		// turn off edges when on screen and scroll lock is active
+		m_setSides(0);
+	}
+	else {
+		// normal edges
+		m_setSides(m_sides);
+	}
 }

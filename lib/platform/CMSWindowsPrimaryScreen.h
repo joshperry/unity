@@ -100,6 +100,9 @@ private:
 	char				mapToCharacter(UINT vkCode, UINT scanCode,
 							BYTE* keys, bool press, bool isMenu, HKL hkl) const;
 
+	//
+	void				onScrollLock();
+
 private:
 	IPrimaryScreenReceiver*	m_receiver;
 	CMSWindowsScreen*	m_screen;
@@ -143,6 +146,10 @@ private:
 
 	// stuff for hiding the cursor
 	DWORD				m_cursorThread;
+
+	// stuff for handling scroll lock
+	bool				m_onScreen;
+	UInt32				m_sides;
 };
 
 #endif
