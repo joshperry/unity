@@ -1138,7 +1138,7 @@ static const KeyID		g_virtualKey[][2] =
 	/* 0x16 */ kKeyNone,		kKeyNone,		// VK_HANGUL		
 	/* 0x17 */ kKeyNone,		kKeyNone,		// VK_JUNJA			
 	/* 0x18 */ kKeyNone,		kKeyNone,		// VK_FINAL			
-	/* 0x19 */ kKeyNone,		kKeyNone,		// VK_KANJI			
+	/* 0x19 */ kKeyZenkaku,		kKeyNone,		// VK_KANJI			
 	/* 0x1a */ kKeyNone,		kKeyNone,		// undefined
 	/* 0x1b */ kKeyEscape,		kKeyNone,		// VK_ESCAPE
 	/* 0x1c */ kKeyNone,		kKeyNone,		// VK_CONVERT		
