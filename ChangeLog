@@ -1,3 +1,10 @@
+2003/07/19 22:07:13 crs
+//depot/branches/synergy/1.0/configure.in
+//depot/branches/synergy/1.0/lib/common/Version.h
+
+Changed version to 1.0.12.
+
+----------
 2003/07/19 17:22:06 crs
 cmd/launcher/launcher.cpp
 cmd/launcher/launcher.rc
