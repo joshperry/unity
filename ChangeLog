@@ -1,6 +1,67 @@
+2003/08/24 14:52:02 crs
+configure.in
+lib/common/Version.h
+
+Changed version to 1.0.14.
+
+----------
+2003/08/23 11:41:03 crs
+lib/platform/CXWindowsClipboard.cpp
+
+Removed hack to work around apparent lesstif bug.  I'm not seeing
+the bug manifest itself and the hack breaks pasting into lesstif
+programs that don't have the bug.  Added DEBUG2 level logging of
+the requestor window's properties in case some users run into
+problems.
+
+----------
+2003/08/06 21:00:57 crs
+lib/platform/CMSWindowsScreen.cpp
+
+Added more debugging log messages to clipboard handling.
+
+----------
+2003/08/06 21:00:17 crs
+cmd/synergyc/CMSWindowsClientTaskBarReceiver.cpp
+cmd/synergys/CMSWindowsServerTaskBarReceiver.cpp
+lib/platform/CMSWindowsClipboard.cpp
+lib/platform/CMSWindowsClipboard.h
+
+Fixed failure to treat log copied to clipboard as subject to
+transfer to clients/server.  This prevented copying the log
+to the clipboard then pasting it on another screen.
+
+----------
+2003/08/06 20:59:01 crs
+cmd/launcher/CAdvancedOptions.cpp
+cmd/launcher/CAdvancedOptions.h
+
+Fixed failure to get non-default settings from advanced options
+dialog in launcher when the dialog hadn't been opened.
+
+----------
+2003/08/06 20:57:41 crs
+lib/arch/CArchLogWindows.cpp
+
+Fixed memory leak in win32 system log open() call.
+
+----------
+2003/08/06 20:56:52 crs
+configure.in
+lib/common/Version.h
+
+Changed version to 1.0.13.
+
+----------
+2003/08/03 21:23:29 crs
+lib/arch/CArchMultithreadWindows.cpp
+
+Fixed bugs in setting thread priority.
+
+----------
 2003/07/19 22:07:13 crs
-//depot/branches/synergy/1.0/configure.in
-//depot/branches/synergy/1.0/lib/common/Version.h
+configure.in
+Version.h
 
 Changed version to 1.0.12.
 

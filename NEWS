@@ -1,6 +1,15 @@
 Synergy News
 ============
 
+* Aug-24-2003 - Synergy 1.0.14 released
+
+  Made following changes:
+  * Fixed bugs in setting win32 process/thread priority
+  * Fixed resource leak in opening win32 system log
+  * Fixed win32 launcher not getting non-default advanced options
+  * Synergy log copied to clipboard now transferred to other screens
+  * Hack to work around lesstif clipboard removed (fixes pasting on X)
+
 * Jul-20-2003 - Synergy 1.0.12 released
 
   This release finally completes support for non-ASCII characters,
