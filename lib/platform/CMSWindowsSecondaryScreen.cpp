@@ -1372,13 +1372,13 @@ CMSWindowsSecondaryScreen::getModifierInfo(UINT virtualKey) const
 		return s_modifier + 3;
 
 	case VK_CAPITAL:
-		return s_modifier + 4;
-
-	case VK_NUMLOCK:
 		return s_modifier + 5;
 
-	case VK_SCROLL:
+	case VK_NUMLOCK:
 		return s_modifier + 6;
+
+	case VK_SCROLL:
+		return s_modifier + 7;
 
 	default:
 		return NULL;
