@@ -540,14 +540,10 @@ getCommandLine(HWND hwnd, bool testing)
 			SetFocus(child);
 			return CString();
 		}
-
-		if (testing) {
-			cmdLine += " --no-camp";
-		}
 	}
 
-	// debug level
-	if (testing) {
+	// debug level.  always include this.
+	if (true) {
 		HWND child  = getItem(hwnd, IDC_MAIN_DEBUG);
 		DWORD debug = SendMessage(child, CB_GETCURSEL, 0, 0);
 		cmdLine    += " --debug ";

@@ -127,8 +127,8 @@ CMSWindowsSecondaryScreen::keyDown(KeyID key,
 	// generate key events
 	doKeystrokes(keys, 1);
 
-	// do not record button down if button is 0 (invalid)
-	if (button != 0) {
+	// do not record button down if button or virtual key is 0 (invalid)
+	if (button != 0 && virtualKey != 0) {
 		// note that key is now down
 		m_serverKeyMap[button]      = virtualKey;
 		m_keys[virtualKey]         |= 0x80;
@@ -936,6 +936,10 @@ CMSWindowsSecondaryScreen::mapKey(Keystrokes& keys, UINT& virtualKey,
 	// from wide char to multibyte, then from multibyte to wide char
 	// forcing conversion to composite characters, then from wide
 	// char back to multibyte without making precomposed characters.
+	//
+	// after the first conversion to multibyte we see if we can map
+	// the key.  if so then we don't bother trying to decompose dead
+	// keys.
 	BOOL error;
 	char multiByte[2 * MB_LEN_MAX];
 	wchar_t unicode[2];
@@ -949,19 +953,51 @@ CMSWindowsSecondaryScreen::mapKey(Keystrokes& keys, UINT& virtualKey,
 		LOG((CLOG_DEBUG2 "KeyID 0x%08x not in code page", id));
 		return m_mask;
 	}
+	virtualKey = mapCharacter(keys, multiByte[0], hkl, m_mask, mask, action);
+	if (virtualKey != static_cast<UINT>(-1)) {
+		LOG((CLOG_DEBUG2 "KeyID 0x%08x maps to character %u", id, (unsigned char)multiByte[0]));
+		if ((MapVirtualKey(virtualKey, 2) & 0x80000000u) != 0) {
+			// it looks like this character is a dead key but
+			// MapVirtualKey() will claim it's a dead key even if it's
+			// not (though i don't think it ever claims it's not when
+			// it is).  we need a backup test to ensure that this is
+			// really a dead key.  we could use ToAscii() for this but
+			// that keeps state and it's a hassle to restore that state.
+			// OemKeyScan() appears to do the trick.  if the character
+			// cannot be generated with a single keystroke then it
+			// returns 0xffffffff.
+			if (OemKeyScan(multiByte[0]) != 0xffffffffu) {
+				// character mapped to a dead key but we want the
+				// character for real so send a space key afterwards.
+				LOG((CLOG_DEBUG2 "character mapped to dead key"));
+				Keystroke keystroke;
+				keystroke.m_virtualKey = VK_SPACE;
+				keystroke.m_press      = true;
+				keystroke.m_repeat     = false;
+				keys.push_back(keystroke);
+				keystroke.m_press      = false;
+				keys.push_back(keystroke);
+
+				// ignore the release of this key since we already
+				// handled it in mapCharacter().
+				virtualKey = 0;
+			}
+		}
+		return m_mask;
+	}
 	nChars = MultiByteToWideChar(codePage,
-								MB_COMPOSITE | MB_ERR_INVALID_CHARS,
-								multiByte, nChars,
-								unicode, 2);
+							MB_COMPOSITE | MB_ERR_INVALID_CHARS,
+							multiByte, nChars,
+							unicode, 2);
 	if (nChars == 0) {
 		LOG((CLOG_DEBUG2 "KeyID 0x%08x mb->wc mapping failed", id));
 		return m_mask;
 	}
 	nChars = WideCharToMultiByte(codePage,
-								0,
-								unicode, nChars,
-								multiByte, sizeof(multiByte),
-								NULL, &error);
+							0,
+							unicode, nChars,
+							multiByte, sizeof(multiByte),
+							NULL, &error);
 	if (nChars == 0 || error) {
 		LOG((CLOG_DEBUG2 "KeyID 0x%08x wc->mb mapping failed", id));
 		return m_mask;
@@ -1040,6 +1076,10 @@ CMSWindowsSecondaryScreen::mapCharacter(Keystrokes& keys,
 
 	// get virtual key
 	UINT virtualKey    = LOBYTE(virtualKeyAndModifierState);
+	if (LOBYTE(virtualKeyAndModifierState) == 0xff) {
+		LOG((CLOG_DEBUG2 "cannot map character %d", static_cast<unsigned char>(c)));
+		return static_cast<UINT>(-1);
+	}
 
 	// get the required modifier state
 	BYTE modifierState = HIBYTE(virtualKeyAndModifierState);
@@ -1225,6 +1265,15 @@ CMSWindowsSecondaryScreen::mapToKeystrokes(Keystrokes& keys,
 		keystroke.m_repeat = true;
 		keys.push_back(keystroke);
 		break;
+	}
+
+	// if this is a dead key press then send a release immediately.
+	// the dead key may not be processed correctly if its release
+	// event comes after we release the modifiers.
+	if (action == kPress &&
+		(MapVirtualKey(virtualKey, 2) & 0x80000000lu) != 0) {
+		keystroke.m_press = false;
+		keys.push_back(keystroke);
 	}
 
 	// add key events to restore the modifier state.  apply events in
