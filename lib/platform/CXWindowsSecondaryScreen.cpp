@@ -2002,6 +2002,7 @@ CXWindowsSecondaryScreen::getDecomposedKeySymTable()
 		XK_umacron,      XK_dead_macron,      XK_u, 0,
 
 		// Latin-8 (ISO 8859-14)
+#if defined(XK_Babovedot)
 		XK_Babovedot,    XK_dead_abovedot,    XK_B, 0,
 		XK_babovedot,    XK_dead_abovedot,    XK_b, 0,
 		XK_Dabovedot,    XK_dead_abovedot,    XK_D, 0,
@@ -2028,9 +2029,12 @@ CXWindowsSecondaryScreen::getDecomposedKeySymTable()
 		XK_wcircumflex,  XK_dead_circumflex,  XK_w, 0,
 		XK_tabovedot,    XK_dead_abovedot,    XK_t, 0,
 		XK_ycircumflex,  XK_dead_circumflex,  XK_y, 0,
+#endif
 
 		// Latin-9 (ISO 8859-15)
+#if defined(XK_Ydiaeresis)
 		XK_Ydiaeresis,   XK_dead_diaeresis,   XK_Y, 0,
+#endif
 
 		// end of table
 		0
