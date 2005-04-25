@@ -77,7 +77,7 @@ CARBON_SOURCE_FILES =						\
 	COSXEventQueueBuffer.cpp				\
 	COSXKeyState.cpp						\
 	COSXScreen.cpp							\
-	COSXScreenSaver.cpp						\
+	COSXScreenSaver.mm						\
 	COSXClipboard.h							\
 	COSXClipboardAnyTextConverter.h			\
 	COSXClipboardTextConverter.h			\
@@ -86,6 +86,7 @@ CARBON_SOURCE_FILES =						\
 	COSXKeyState.h							\
 	COSXScreen.h							\
 	COSXScreenSaver.h						\
+	OSXScreenSaverControl.h					\
 	$(NULL)
 
 EXTRA_DIST =								\
@@ -120,3 +121,11 @@ INCLUDES =									\
 	-I$(top_srcdir)/lib/io	 				\
 	-I$(top_srcdir)/lib/synergy 			\
 	$(NULL)
+
+OBJCXXCOMPILE = $(OBJCXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(CPPFLAGS) $(OBJCXXFLAGS)
+OBJCXX = @OBJCXX@
+OBJCXXFLAGS = @OBJCXXFLAGS@
+.mm.o:
+	$(OBJCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
+

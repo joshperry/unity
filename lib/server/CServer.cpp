@@ -168,7 +168,8 @@ CServer::~CServer()
 		delete client;
 	}
 
-	// disconnect primary client
+	// disable and disconnect primary client
+	m_primaryClient->disable();
 	removeClient(m_primaryClient);
 }
 
