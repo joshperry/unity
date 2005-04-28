@@ -572,7 +572,7 @@ void
 handleSuspend(const CEvent& event, void*)
 {
 	if (!s_suspended) {
-		LOG((CLOG_DEBUG "suspend"));
+		LOG((CLOG_INFO "suspend"));
 		stopServer();
 		s_suspended = true;
 	}
@@ -583,7 +583,7 @@ void
 handleResume(const CEvent& event, void*)
 {
 	if (s_suspended) {
-		LOG((CLOG_DEBUG "resume"));
+		LOG((CLOG_INFO "resume"));
 		startServer();
 		s_suspended = false;
 	}

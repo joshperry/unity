@@ -631,7 +631,7 @@ CClient::handleHello(const CEvent&, void*)
 void
 CClient::handleSuspend(const CEvent& event, void*)
 {
-	LOG((CLOG_DEBUG "suspend"));
+	LOG((CLOG_INFO "suspend"));
 	m_suspended       = true;
 	bool wasConnected = isConnected();
 	disconnect(NULL);
@@ -641,7 +641,7 @@ CClient::handleSuspend(const CEvent& event, void*)
 void
 CClient::handleResume(const CEvent& event, void*)
 {
-	LOG((CLOG_DEBUG "resume"));
+	LOG((CLOG_INFO "resume"));
 	m_suspended = false;
 	if (m_connectOnResume) {
 		m_connectOnResume = false;
