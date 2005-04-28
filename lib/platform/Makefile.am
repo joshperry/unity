@@ -13,6 +13,8 @@
 ## Process this file with automake to produce Makefile.in
 NULL =
 
+export MACOSX_DEPLOYMENT_TARGET
+
 XWINDOWS_SOURCE_FILES =						\
 	CXWindowsClipboard.cpp					\
 	CXWindowsClipboardAnyBitmapConverter.cpp\
@@ -127,5 +129,8 @@ OBJCXXCOMPILE = $(OBJCXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 OBJCXX = @OBJCXX@
 OBJCXXFLAGS = @OBJCXXFLAGS@
 .mm.o:
+	source='$<' object='$@' libtool=no \
+	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' \
+	$(CXXDEPMODE) $(depcomp) \
 	$(OBJCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
 
