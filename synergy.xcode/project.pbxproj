@@ -13,7 +13,10 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.2;
 				OPTIMIZATION_CFLAGS = "-O0";
+				SYMROOT = gen/debug;
+				WARNING_CFLAGS = "-Wall";
 				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
@@ -25,6 +28,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
+				MACOSX_DEPLOYMENT_TARGET = 10.2;
+				SYMROOT = gen/build;
 				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
@@ -42,14 +47,10 @@
 //024
 		0249A662FF388D9811CA2CEA = {
 			children = (
-				4CDF3892063E561B007B20A1,
-				4CDF3893063E561B007B20A1,
-				4CDF3894063E561B007B20A1,
-				4CDF3895063E561B007B20A1,
-				4CDF3896063E561B007B20A1,
-				4CDF3897063E561B007B20A1,
-				4CDF3898063E561B007B20A1,
-				4CDF3899063E561B007B20A1,
+				6828A237081DFAF9003D9989,
+				6828A1A7081DF7AB003D9989,
+				6828A1A8081DF7AB003D9989,
+				6828A1A9081DF7AB003D9989,
 				4CB43923063E4B1300969041,
 			);
 			isa = PBXGroup;
@@ -96,10 +97,6 @@
 		};
 		08FB7794FE84155DC02AAC07 = {
 			children = (
-				6828A237081DFAF9003D9989,
-				6828A1A7081DF7AB003D9989,
-				6828A1A8081DF7AB003D9989,
-				6828A1A9081DF7AB003D9989,
 				08FB7795FE84155DC02AAC07,
 				0249A662FF388D9811CA2CEA,
 				1AB674ADFE9D54B511CA2CBB,
@@ -156,6 +153,7 @@
 			);
 			isa = PBXGroup;
 			name = Products;
+			path = "";
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -212,19 +210,8 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt ./lib/io ./lib/net ./lib/synergy ./lib/platform ./lib/client";
-				INSTALL_PATH = /usr/local/bin;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt lib/io lib/net lib/synergy lib/platform lib/client";
 				PRODUCT_NAME = synergys;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 				4C537F1A064E298800D3815C,
@@ -489,19 +476,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt ./lib/io ./lib/net ./lib/synergy ./lib/platform";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt lib/io lib/net lib/synergy lib/platform";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = server;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -818,6 +795,7 @@
 				6828A1AE081DF7AB003D9989,
 				6828A1AF081DF7AB003D9989,
 				6828A239081DFAF9003D9989,
+				CAB4475F081E367700724B8D,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -907,20 +885,8 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				INSTALL_PATH = /usr/local/lib;
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRECOMP_DESTINATION_DIR = "";
 				PRODUCT_NAME = common;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -3310,20 +3276,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt ./lib/io ./lib/net ./lib/synergy ./lib/platform";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt lib/io lib/net lib/synergy lib/platform";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = client;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -3468,21 +3423,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = ./lib/common;
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = lib/common;
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRECOMP_DESTINATION_DIR = lib/common/;
 				PRODUCT_NAME = arch;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -3555,19 +3498,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = base;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -3678,19 +3611,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = mt;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -3757,19 +3680,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = io;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -3831,19 +3744,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt ./lib/io";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt lib/io";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = net;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -3987,20 +3890,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt ./lib/io ./lib/net";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt lib/io lib/net";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = synergy;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -4083,20 +3975,9 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt ./lib/io /lib/synergy";
-				INSTALL_PATH = /usr/local/lib;
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt lib/io lib/synergy";
 				LIBRARY_STYLE = STATIC;
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = platform;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 			);
@@ -4143,20 +4024,8 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = lib/common/MacOSXPrecomp.h;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = "./lib/common ./lib/arch ./lib/base ./lib/mt ./lib/io ./lib/net ./lib/synergy ./lib/platform ./lib/client";
-				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.2;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
+				HEADER_SEARCH_PATHS = "lib/common lib/arch lib/base lib/mt lib/io lib/net lib/synergy lib/platform lib/client";
 				PRODUCT_NAME = synergyc;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
 			};
 			dependencies = (
 				4CB43948063E4E1600969041,
@@ -4200,27 +4069,27 @@
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = Carbon.framework;
-			path = ../../../../../System/Library/Frameworks/Carbon.framework;
-			refType = 4;
-			sourceTree = "<group>";
+			path = /System/Library/Frameworks/Carbon.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		4CB43930063E4B4300969041 = {
 			buildActionMask = 2147483647;
 			files = (
 				4CB43934063E4B4A00969041,
-				4CDF389A063E561B007B20A1,
 				4C5E87CF0648CA4B003C637B,
-				4CDF389B063E561B007B20A1,
-				4CDF389C063E561B007B20A1,
-				4CDF389D063E561B007B20A1,
-				4CDF389E063E561B007B20A1,
-				4CDF389F063E561B007B20A1,
-				4CDF38A0063E561B007B20A1,
-				4CDF38A1063E561B007B20A1,
 				6828A1AA081DF7AB003D9989,
 				6828A1AB081DF7AB003D9989,
 				6828A1AC081DF7AB003D9989,
 				6828A238081DFAF9003D9989,
+				CAB44760081E368100724B8D,
+				CAB44761081E368200724B8D,
+				CAB44762081E368300724B8D,
+				CAB44764081E368700724B8D,
+				CAB44765081E368800724B8D,
+				CAB44766081E368A00724B8D,
+				CAB44767081E368B00724B8D,
+				CAB44768081E368D00724B8D,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4331,12 +4200,7 @@
 			buildPhases = (
 			);
 			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ALL;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 			};
 			dependencies = (
 				4CD033EA0650968500525ED1,
@@ -4456,118 +4320,6 @@
 		};
 		4CD0349A0650B6F100525ED1 = {
 			fileRef = 4CD034940650B6F100525ED1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF3892063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libarch.a;
-			path = build/libarch.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF3893063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libbase.a;
-			path = build/libbase.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF3894063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libclient.a;
-			path = build/libclient.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF3895063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libio.a;
-			path = build/libio.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF3896063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libmt.a;
-			path = build/libmt.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF3897063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libnet.a;
-			path = build/libnet.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF3898063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libplatform.a;
-			path = build/libplatform.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF3899063E561B007B20A1 = {
-			isa = PBXFileReference;
-			lastKnownFileType = archive.ar;
-			name = libsynergy.a;
-			path = build/libsynergy.a;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		4CDF389A063E561B007B20A1 = {
-			fileRef = 4CDF3892063E561B007B20A1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF389B063E561B007B20A1 = {
-			fileRef = 4CDF3893063E561B007B20A1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF389C063E561B007B20A1 = {
-			fileRef = 4CDF3894063E561B007B20A1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF389D063E561B007B20A1 = {
-			fileRef = 4CDF3895063E561B007B20A1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF389E063E561B007B20A1 = {
-			fileRef = 4CDF3896063E561B007B20A1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF389F063E561B007B20A1 = {
-			fileRef = 4CDF3897063E561B007B20A1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF38A0063E561B007B20A1 = {
-			fileRef = 4CDF3898063E561B007B20A1;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		4CDF38A1063E561B007B20A1 = {
-			fileRef = 4CDF3899063E561B007B20A1;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -4973,6 +4725,70 @@
 		};
 		68968F5F073EC484004B2F9B = {
 			fileRef = 68968F5C073EC484004B2F9B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//680
+//681
+//682
+//683
+//684
+//CA0
+//CA1
+//CA2
+//CA3
+//CA4
+		CAB4475F081E367700724B8D = {
+			fileRef = 4CB43778063E406A00969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44760081E368100724B8D = {
+			fileRef = 4CB437B5063E443800969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44761081E368200724B8D = {
+			fileRef = 4CB437D1063E44C200969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44762081E368300724B8D = {
+			fileRef = 4CB43778063E406A00969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44764081E368700724B8D = {
+			fileRef = 4CB43824063E46AB00969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44765081E368800724B8D = {
+			fileRef = 4CB43801063E45F200969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44766081E368A00724B8D = {
+			fileRef = 4CB43848063E475800969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44767081E368B00724B8D = {
+			fileRef = 4CB438B1063E488600969041;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		CAB44768081E368D00724B8D = {
+			fileRef = 4CB4386E063E47F800969041;
 			isa = PBXBuildFile;
 			settings = {
 			};

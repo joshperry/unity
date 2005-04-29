@@ -31,6 +31,17 @@
 #include <mach-o/dyld.h>
 #include <AvailabilityMacros.h>
 
+// Set some enums for fast user switching if we're building with an SDK
+// from before such support was added.
+#if !defined(MAC_OS_X_VERSION_10_3) || \
+	(MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
+enum {
+	kEventClassSystem                  = 'macs',
+	kEventSystemUserSessionActivated   = 10,
+	kEventSystemUserSessionDeactivated = 11
+};
+#endif
+
 //
 // COSXScreen
 //
@@ -1221,6 +1232,11 @@ COSXScreen::handleConfirmSleep(const CEvent& event, void*)
 // CoreGraphics private API (OSX 10.3)
 // Source: http://ichiro.nnip.org/osx/Cocoa/GlobalHotkey.html
 //
+// We load the functions dynamically because they're not available in
+// older SDKs.  We don't use weak linking because we want users of
+// older SDKs to build an app that works on newer systems and older
+// SDKs will not provide the symbols.
+//
 
 #ifdef	__cplusplus
 extern "C" {
@@ -1232,9 +1248,9 @@ typedef enum {
 	CGSGlobalHotKeyDisable = 1,
 } CGSGlobalHotKeyOperatingMode;
 
-extern CGSConnection _CGSDefaultConnection(void) __attribute__((weak_import));
-extern CGError CGSGetGlobalHotKeyOperatingMode(CGSConnection connection, CGSGlobalHotKeyOperatingMode *mode) __attribute__((weak_import));
-extern CGError CGSSetGlobalHotKeyOperatingMode(CGSConnection connection, CGSGlobalHotKeyOperatingMode mode) __attribute__((weak_import));
+extern CGSConnection _CGSDefaultConnection(void) WEAK_IMPORT_ATTRIBUTE;
+extern CGError CGSGetGlobalHotKeyOperatingMode(CGSConnection connection, CGSGlobalHotKeyOperatingMode *mode) WEAK_IMPORT_ATTRIBUTE;
+extern CGError CGSSetGlobalHotKeyOperatingMode(CGSConnection connection, CGSGlobalHotKeyOperatingMode mode) WEAK_IMPORT_ATTRIBUTE;
 
 typedef CGSConnection (*_CGSDefaultConnection_t)(void);
 typedef CGError (*CGSGetGlobalHotKeyOperatingMode_t)(CGSConnection connection, CGSGlobalHotKeyOperatingMode *mode);
@@ -1254,7 +1270,6 @@ static CGSSetGlobalHotKeyOperatingMode_t	s_CGSSetGlobalHotKeyOperatingMode;
 		s_ ## name_ = (name_ ## _t)NSAddressOfSymbol(					\
 							NSLookupAndBindSymbolWithHint(				\
 								"_" #name_, "CoreGraphics"));			\
-printf("bound %s to %p\n", #name_, s_ ## name_);\
 	}
 
 bool
