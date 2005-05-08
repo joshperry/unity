@@ -594,6 +594,29 @@ CArchNetworkBSD::setNoDelayOnSocket(CArchSocket s, bool noDelay)
 	return (oflag != 0);
 }
 
+bool
+CArchNetworkBSD::setReuseAddrOnSocket(CArchSocket s, bool reuse)
+{
+	assert(s != NULL);
+
+	// get old state
+	int oflag;
+	socklen_t size = sizeof(oflag);
+	if (getsockopt(s->m_fd, SOL_SOCKET, SO_REUSEADDR,
+							(optval_t*)&oflag, &size) == -1) {
+		throwError(errno);
+	}
+
+	int flag = reuse ? 1 : 0;
+	size     = sizeof(flag);
+	if (setsockopt(s->m_fd, SOL_SOCKET, SO_REUSEADDR,
+							(optval_t*)&flag, size) == -1) {
+		throwError(errno);
+	}
+
+	return (oflag != 0);
+}
+
 std::string
 CArchNetworkBSD::getHostName()
 {
