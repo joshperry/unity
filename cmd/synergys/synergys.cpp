@@ -379,6 +379,7 @@ retryHandler(const CEvent&, void*)
 
 	case kInitializing:
 		LOG((CLOG_DEBUG1 "retry server initialization"));
+		s_serverState = kUninitialized;
 		if (!initServer()) {
 			EVENTQUEUE->addEvent(CEvent(CEvent::kQuit));
 		}
@@ -386,6 +387,7 @@ retryHandler(const CEvent&, void*)
 
 	case kInitializingToStart:
 		LOG((CLOG_DEBUG1 "retry server initialization"));
+		s_serverState = kUninitialized;
 		if (!initServer()) {
 			EVENTQUEUE->addEvent(CEvent(CEvent::kQuit));
 		}
@@ -399,6 +401,7 @@ retryHandler(const CEvent&, void*)
 
 	case kStarting:
 		LOG((CLOG_DEBUG1 "retry starting server"));
+		s_serverState = kInitialized;
 		if (!startServer()) {
 			EVENTQUEUE->addEvent(CEvent(CEvent::kQuit));
 		}
