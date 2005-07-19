@@ -840,12 +840,12 @@ COSXKeyState::filluchrKeysMap(CKeyIDMap& keyMap) const
 
 	// build composed keys to virtual keys mapping
 	UCKeyStateRecordsIndex* sri = NULL;
-	if (th->keyStateRecordsIndexOffset != NULL) {
+	if (th->keyStateRecordsIndexOffset != 0) {
 		sri = reinterpret_cast<UCKeyStateRecordsIndex*>(
 				base + th->keyStateRecordsIndexOffset);
 	}
 	UCKeyStateTerminators* st = NULL;
-	if (th->keyStateTerminatorsOffset != NULL) {
+	if (th->keyStateTerminatorsOffset != 0) {
 		st = reinterpret_cast<UCKeyStateTerminators*>(
 				base + th->keyStateTerminatorsOffset);
 	}
