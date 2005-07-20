@@ -629,7 +629,7 @@ CClient::handleHello(const CEvent&, void*)
 }
 
 void
-CClient::handleSuspend(const CEvent& event, void*)
+CClient::handleSuspend(const CEvent&, void*)
 {
 	LOG((CLOG_INFO "suspend"));
 	m_suspended       = true;
@@ -639,7 +639,7 @@ CClient::handleSuspend(const CEvent& event, void*)
 }
 
 void
-CClient::handleResume(const CEvent& event, void*)
+CClient::handleResume(const CEvent&, void*)
 {
 	LOG((CLOG_INFO "resume"));
 	m_suspended = false;

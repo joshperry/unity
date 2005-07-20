@@ -572,7 +572,7 @@ cleanupServer()
 
 static
 void
-handleSuspend(const CEvent& event, void*)
+handleSuspend(const CEvent&, void*)
 {
 	if (!s_suspended) {
 		LOG((CLOG_INFO "suspend"));
@@ -583,7 +583,7 @@ handleSuspend(const CEvent& event, void*)
 
 static
 void
-handleResume(const CEvent& event, void*)
+handleResume(const CEvent&, void*)
 {
 	if (s_suspended) {
 		LOG((CLOG_INFO "resume"));
