@@ -19,6 +19,11 @@
 
 #if HAVE_CONFIG_H
 #	include "config.h"
+
+	// don't use poll() on mac
+#	if defined(__APPLE__)
+#		undef HAVE_POLL
+#	endif
 #else
 	// we may not have run configure on win32
 #	if defined(_WIN32)
