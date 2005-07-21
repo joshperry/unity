@@ -322,7 +322,7 @@ CArchNetworkBSD::pollSocket(CPollEntry pe[], int num, double timeout)
 	n = poll(pfd, n, t);
 
 	// reset the unblock pipe
-	if (unblockPipe != NULL && (pfd[num].revents & POLLIN) != 0) {
+	if (n > 0 && unblockPipe != NULL && (pfd[num].revents & POLLIN) != 0) {
 		// the unblock event was signalled.  flush the pipe.
 		char dummy[100];
 		do {
@@ -452,7 +452,7 @@ CArchNetworkBSD::pollSocket(CPollEntry pe[], int num, double timeout)
 				SELECT_TYPE_ARG5   timeout2P);
 
 	// reset the unblock pipe
-	if (unblockPipe != NULL && FD_ISSET(unblockPipe[0], &readSet)) {
+	if (n > 0 && unblockPipe != NULL && FD_ISSET(unblockPipe[0], &readSet)) {
 		// the unblock event was signalled.  flush the pipe.
 		char dummy[100];
 		do {
