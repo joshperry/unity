@@ -84,7 +84,8 @@ static const char* s_debugName[][2] = {
 	{ TEXT("Debug1"),  "DEBUG1" },
 	{ TEXT("Debug2"),  "DEBUG2" }
 };
-static const int s_defaultDebug = 3;	// INFO
+static const int s_defaultDebug = 1;	// WARNING
+static const int s_minTestDebug = 3;	// INFO
 
 HINSTANCE s_instance = NULL;
 
@@ -549,8 +550,16 @@ getCommandLine(HWND hwnd, bool testing)
 
 	// debug level.  always include this.
 	if (true) {
-		HWND child  = getItem(hwnd, IDC_MAIN_DEBUG);
-		DWORD debug = SendMessage(child, CB_GETCURSEL, 0, 0);
+		HWND child = getItem(hwnd, IDC_MAIN_DEBUG);
+		int debug  = (int)SendMessage(child, CB_GETCURSEL, 0, 0);
+
+		// if testing then we force the debug level to be no less than
+		// s_minTestDebug.   what's the point of testing if you can't
+		// see the debugging info?
+		if (testing && debug < s_minTestDebug) {
+			debug = s_minTestDebug;
+		}
+
 		cmdLine    += " --debug ";
 		cmdLine    += s_debugName[debug][1];
 	}
