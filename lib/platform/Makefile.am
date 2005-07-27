@@ -124,11 +124,12 @@ INCLUDES =									\
 	-I$(top_srcdir)/lib/synergy 			\
 	$(NULL)
 
+OBJCXX_RULE_PATTERN = .mm.o
 OBJCXXCOMPILE = $(OBJCXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(CPPFLAGS) $(OBJCXXFLAGS)
 OBJCXX = @OBJCXX@
 OBJCXXFLAGS = @OBJCXXFLAGS@
-.mm.o:
+$(OBJCXX_RULE_PATTERN):
 	source='$<' object='$@' libtool=no \
 	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' \
 	$(CXXDEPMODE) $(depcomp) \
