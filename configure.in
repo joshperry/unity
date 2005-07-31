@@ -53,16 +53,20 @@ AM_CONDITIONAL(CARBON, test x$acx_host_winapi = xCARBON)
 AM_CONDITIONAL(XWINDOWS, test x$acx_host_winapi = xXWINDOWS)
 
 dnl checks for programs
+AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
 AC_CHECK_PROG(HAVE_DOT, dot, YES, NO)
 
-dnl objective C++ support
-dnl XXX -- should check that -ObjC++ works
-OBJCXX=g++
-OBJCXXFLAGS="-ObjC++"
-AC_SUBST(OBJCXX)
-AC_SUBST(OBJCXXFLAGS)
+dnl AC_PROG_OBJC doesn't exist.  Borrow some ideas from KDE.
+dnl AC_MSG_CHECKING(for an Objective-C compiler)
+OBJC="${CC}"
+OBJCFLAGS="${CFLAGS}"
+AC_SUBST(OBJC)
+AC_SUBST(OBJCFLAGS)
+dnl _AM_DEPENDENCIES doesn't work so hard code it
+_AM_DEPENDENCIES(OBJC)
+dnl OBJCDEPMODE="depmode=gcc3"
 
 dnl do checks using C++
 AC_LANG_CPLUSPLUS

@@ -79,7 +79,8 @@ CARBON_SOURCE_FILES =						\
 	COSXEventQueueBuffer.cpp				\
 	COSXKeyState.cpp						\
 	COSXScreen.cpp							\
-	COSXScreenSaver.mm						\
+	COSXScreenSaver.cpp						\
+	COSXScreenSaverUtil.m					\
 	COSXClipboard.h							\
 	COSXClipboardAnyTextConverter.h			\
 	COSXClipboardTextConverter.h			\
@@ -88,6 +89,7 @@ CARBON_SOURCE_FILES =						\
 	COSXKeyState.h							\
 	COSXScreen.h							\
 	COSXScreenSaver.h						\
+	COSXScreenSaverUtil.h					\
 	OSXScreenSaverControl.h					\
 	$(NULL)
 
@@ -123,14 +125,3 @@ INCLUDES =									\
 	-I$(top_srcdir)/lib/io	 				\
 	-I$(top_srcdir)/lib/synergy 			\
 	$(NULL)
-
-OBJCXXCOMPILE = $(OBJCXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(CPPFLAGS) $(OBJCXXFLAGS)
-OBJCXX = @OBJCXX@
-OBJCXXFLAGS = @OBJCXXFLAGS@
-.mm.o:
-	source='$<' object='$@' libtool=no \
-	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' \
-	$(CXXDEPMODE) $(depcomp) \
-	$(OBJCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
-
