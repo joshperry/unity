@@ -435,6 +435,17 @@ standardStartup(int argc, char** argv)
 
 static
 int
+foregroundStartup(int argc, char** argv)
+{
+	// parse command line
+	parse(argc, argv);
+
+	// never daemonize
+	return mainLoop();
+}
+
+static
+int
 run(int argc, char** argv, ILogOutputter* outputter, StartupFunc startup)
 {
 	// general initialization
@@ -805,8 +816,13 @@ WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int)
 		// users on NT can use `--daemon' or `--no-daemon' to force us out
 		// of the service code path.
 		StartupFunc startup = &standardStartup;
-		if (__argc <= 1 && !CArchMiscWindows::isWindows95Family()) {
-			startup = &daemonNTStartup;
+		if (!CArchMiscWindows::isWindows95Family()) {
+			if (__argc <= 1) {
+				startup = &daemonNTStartup;
+			}
+			else {
+				startup = &foregroundStartup;
+			}
 		}
 
 		// send PRINT and FATAL output to a message box
