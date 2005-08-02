@@ -435,17 +435,6 @@ standardStartup(int argc, char** argv)
 
 static
 int
-foregroundStartup(int argc, char** argv)
-{
-	// parse command line
-	parse(argc, argv);
-
-	// never daemonize
-	return mainLoop();
-}
-
-static
-int
 run(int argc, char** argv, ILogOutputter* outputter, StartupFunc startup)
 {
 	// general initialization
@@ -788,6 +777,17 @@ daemonNTStartup(int, char**)
 	CSystemLogger sysLogger(DAEMON_NAME);
 	bye = &byeThrow;
 	return ARCH->daemonize(DAEMON_NAME, &daemonNTMainLoop);
+}
+
+static
+int
+foregroundStartup(int argc, char** argv)
+{
+	// parse command line
+	parse(argc, argv);
+
+	// never daemonize
+	return mainLoop();
 }
 
 static
