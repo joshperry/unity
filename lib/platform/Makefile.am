@@ -13,8 +13,6 @@
 ## Process this file with automake to produce Makefile.in
 NULL =
 
-export MACOSX_DEPLOYMENT_TARGET
-
 XWINDOWS_SOURCE_FILES =						\
 	CXWindowsClipboard.cpp					\
 	CXWindowsClipboardAnyBitmapConverter.cpp\
