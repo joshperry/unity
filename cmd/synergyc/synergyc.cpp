@@ -259,6 +259,7 @@ handleClientFailed(const CEvent& e, void*)
 	updateStatus(CString("Failed to connect to server: ") + info->m_what);
 	if (!ARG->m_restartable || !info->m_retry) {
 		LOG((CLOG_ERR "failed to connect to server: %s", info->m_what));
+		EVENTQUEUE->addEvent(CEvent(CEvent::kQuit));
 	}
 	else {
 		LOG((CLOG_WARN "failed to connect to server: %s", info->m_what));
